@@ -1,12 +1,28 @@
-# React + Vite
+# Gemini Clone
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Gemini Clone** is a web application that replicates functionalities inspired by the Gemini platform. This project is developed for Front-end practice and demonstrates interactive UI, API integration, and responsive design.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **New Page Creation**: Clicking the "New" button opens a new page dynamically.
+- **Gemini API Integration**: The project communicates with the Gemini API for fetching and sending data.
+- **Input Validation**: The send button only works if the input field is not empty.
+- **Recent Questions Tracking**: All written or provided questions are stored and displayed in the "Recent" section.
+- **Responsive Design**: Fully responsive layout for different screen sizes.
+- **Sidebar Toggle**: Sidebar can be opened and closed smoothly.
 
-## Expanding the ESLint configuration
+## Technologies Used
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **HTML5 & CSS3** – for markup and styling.
+- **JavaScript (ES6+)** – for interactivity and API handling.
+- **Git & GitHub** – for version control.
+- **Responsive Design Principles** – ensures compatibility across devices.
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/TalibliMahammad/gemini-clone.git
+
+<img width="1893" height="898" alt="Ekran şəkli 2025-09-20 203659" src="https://github.com/user-attachments/assets/1ed12b28-0dff-4efa-b0df-5db60d8af830" />
+<img width="1902" height="905" alt="Ekran şəkli 2025-09-20 203729" src="https://github.com/user-attachments/assets/65d7e19f-2237-4a1a-af3e-2b336a8181d8" />
