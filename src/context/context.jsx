@@ -10,10 +10,19 @@ export const Context = createContext();
 const ContextProvider = (props) => {
     const [input, setInput] = useState("");
     const [recentPrompt, setRecentPrompt] = useState("");
-    const [prevPrompts, setPrevPrompts] = useState([]);
+   const [prevPrompts, setPrevPrompts] = useState(() => {
+        const saved = localStorage.getItem("prevPrompts");
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    useEffect(() => {
+        localStorage.setItem("prevPrompts", JSON.stringify(prevPrompts));
+    }, [prevPrompts]);
+    
     const [showResult, setShowResult] = useState(false);
     const [loading, setLoading] = useState(false);
     const [resultData, setResultData] = useState("");
+
 
     const delayPara = (index, nexWord) => {
         setTimeout(() => {
@@ -24,23 +33,17 @@ const ContextProvider = (props) => {
     const newChat = () => {
         setLoading(false);
         setShowResult(false);
-       
+
     }
     const onSent = async (prompt) => {
         setResultData("");
         setLoading(true);
         setShowResult(true);
-        let response;
-        if (prompt !== undefined) {
-            response = await runChat(prompt);
-            setRecentPrompt(prompt);
+        let usedPrompt = prompt !== undefined ? prompt : input;
+        setPrevPrompts((prev) => [...prev, usedPrompt]);
+        setRecentPrompt(usedPrompt);
+        let response = await runChat(usedPrompt);
 
-        }
-        else{
-            setPrevPrompts((prev) => [...prev, input]);
-            setRecentPrompt(input);
-            response = await runChat(input);
-        }
         let responseArray = response.split("**");
         let newResponse = "";
         for (let i = 0; i < responseArray.length; i++) {
@@ -59,8 +62,6 @@ const ContextProvider = (props) => {
         setResultData(newResponse2)
         setLoading(false);
         setInput("");
-
-        setGeminiResponse((prev) => [...prev, { type: "text", data: reply }]);
     };
 
     const ContextValue = {
