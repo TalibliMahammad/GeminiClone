@@ -15,10 +15,10 @@ const ContextProvider = (props) => {
         return saved ? JSON.parse(saved) : [];
     });
 
+
     useEffect(() => {
         localStorage.setItem("prevPrompts", JSON.stringify(prevPrompts));
     }, [prevPrompts]);
-    
     const [showResult, setShowResult] = useState(false);
     const [loading, setLoading] = useState(false);
     const [resultData, setResultData] = useState("");
@@ -35,12 +35,14 @@ const ContextProvider = (props) => {
         setShowResult(false);
 
     }
-    const onSent = async (prompt) => {
+    const onSent = async (prompt, fromRecent = false) => {
         setResultData("");
         setLoading(true);
         setShowResult(true);
         let usedPrompt = prompt !== undefined ? prompt : input;
-        setPrevPrompts((prev) => [...prev, usedPrompt]);
+        if (!fromRecent && prompt === undefined) {
+            setPrevPrompts((prev) => [...prev, usedPrompt]);
+        }
         setRecentPrompt(usedPrompt);
         let response = await runChat(usedPrompt);
 
@@ -53,13 +55,14 @@ const ContextProvider = (props) => {
                 newResponse += "<b>" + responseArray[i] + "</b>"
             }
         }
-        let newResponse2 = newResponse.split("*").join("<br>")
-        let newResponseArray = newResponse2.split("");
+        let newResponse2 = newResponse.split("*").join("<br>");
+        let newResponseArray = newResponse2.split(" "); // simvol yox, sözə böl
+
         for (let i = 0; i < newResponseArray.length; i++) {
-            const nextWord = newResponseArray[i];
-            delayPara(i, nextWord + "");
+            const nextWord = newResponseArray[i] + " ";
+            delayPara(i, nextWord);
         }
-        setResultData(newResponse2)
+
         setLoading(false);
         setInput("");
     };

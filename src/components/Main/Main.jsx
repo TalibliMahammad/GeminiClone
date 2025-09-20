@@ -57,17 +57,13 @@ const Main = () => {
                             <img src={assets.gemini_icon} alt="" />
 
                             {loading
-
                                 ? <div className="loader">
                                     <hr />
                                     <hr />
                                     <hr />
                                 </div>
-
-                                : null
+                                : <p dangerouslySetInnerHTML={{ __html: resultData }}></p>
                             }
-
-                            <p dangerouslySetInnerHTML={{ __html: resultData }}></p>
 
                         </div>
                     </div>
