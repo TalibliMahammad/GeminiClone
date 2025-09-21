@@ -11,9 +11,8 @@ const Sidebar = () => {
 
     const loadPrompt = async (prompt) => {
         setRecentPrompt(prompt)
-        await onSent(prompt)
+        await onSent(prompt, true)
     }
-console.log(prevPrompts);
 
 
     return (
