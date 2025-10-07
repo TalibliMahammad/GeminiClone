@@ -1,6 +1,7 @@
 
 
 
+
 import {
     GoogleGenerativeAI,
     HarmCategory,
@@ -8,8 +9,9 @@ import {
 } from '@google/generative-ai'
 
 
-const MODEL_NAME = 'gemini-1.5-flash';
-const API_KEY = "AIzaSyCHgA5GzuZMp63GqnU3uDXPMCU09G9t4Tc";
+
+const MODEL_NAME = "gemini-1.5-flash-latest";
+const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
 async function runChat(prompt) {
     const genAI = new GoogleGenerativeAI(API_KEY);
@@ -50,10 +52,19 @@ async function runChat(prompt) {
 
         ],
     });
-    const result = await chat.sendMessage(prompt);
-    const response = result.response;
-    console.log("Gemini says:", response.text());
-    return response.text();
+
+    
+   try {
+        
+        const result = await chat.sendMessage(prompt);
+        const response = result.response;
+        console.log("Gemini says:", response.text());
+        return response.text();
+    } catch (error) {
+        console.error("API sorğusunda xəta baş verdi:", error);
+        
+        return "Üzr istəyirik, bir problem yarandı. Zəhmət olmasa, bir az sonra yenidən cəhd edin.";
+    }
 
 }
 export default runChat;
