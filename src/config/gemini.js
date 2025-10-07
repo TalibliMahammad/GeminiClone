@@ -10,8 +10,8 @@ import {
 
 
 
-const MODEL_NAME = "gemini-1.5-flash-latest";
-const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+const MODEL_NAME = "gemini-1.0-pro";
+const API_KEY = 'AIzaSyBPu5GvtZ5pA-RW5cD8OadmmdVXmeId2Qk';
 
 async function runChat(prompt) {
     const genAI = new GoogleGenerativeAI(API_KEY);
@@ -59,7 +59,8 @@ async function runChat(prompt) {
         const result = await chat.sendMessage(prompt);
         const response = result.response;
         console.log("Gemini says:", response.text());
-        return response.text();
+        const text = await response.text();
+        return text;
     } catch (error) {
         console.error("API sorğusunda xəta baş verdi:", error);
         

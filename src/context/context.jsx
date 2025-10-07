@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import runChat from "../netlify/functions/gemini";
+import runChat from "../config/gemini";
 
 
 
