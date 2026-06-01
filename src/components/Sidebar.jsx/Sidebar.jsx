@@ -5,7 +5,7 @@ import { Context } from "../../context/context";
 import { assets } from "../../assets/assets";
 
 const Sidebar = () => {
-  const { conversations, activeConversation, loadConversation, newChat } = useContext(Context);
+  const { conversations, activeConversation, loadConversation, newChat, deleteConversation } = useContext(Context);
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -15,17 +15,21 @@ const Sidebar = () => {
           <img src={assets.gemini_icon} alt="Gemini" />
           {!collapsed && (
             <div className="brand-text">
-              <p>Gemini</p>
+              <p>Mahammad Ai</p>
               <span>Conversation history</span>
             </div>
           )}
         </div>
-        <button className="sidebar-collapse" onClick={() => setCollapsed((prev) => !prev)}>
+        <button
+          className="sidebar-collapse"
+          onClick={() => setCollapsed((prev) => !prev)}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
           {collapsed ? "›" : "‹"}
         </button>
       </div>
 
-      <button className="btn-new-chat" onClick={newChat}>
+      <button className="btn-new-chat" onClick={newChat} aria-label="New chat">
         <span>+</span>
         {!collapsed && "New Chat"}
       </button>
@@ -35,21 +39,38 @@ const Sidebar = () => {
           <div className="history-empty">No chats yet. Start a new conversation.</div>
         ) : (
           conversations.map((item) => (
-            <button
+            <div
               key={item.id}
               className={`history-item ${activeConversation?.id === item.id ? "active" : ""}`}
               onClick={() => loadConversation(item.id)}
+              role="button"
+              tabIndex={0}
             >
-              <div className="history-title">{item.title}</div>
-              {!collapsed && <small>{new Date(item.createdAt).toLocaleDateString()}</small>}
-            </button>
+              <div className="history-left">
+                <div className="history-title">{item.title}</div>
+                {!collapsed && <small>{new Date(item.createdAt).toLocaleDateString()}</small>}
+              </div>
+              <div className="history-right">
+                <button
+                  className="history-delete"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (window.confirm("Conversation silinsin?")) deleteConversation(item.id);
+                  }}
+                  aria-label="Delete conversation"
+                  title="Sil"
+                >
+                  🗑
+                </button>
+              </div>
+            </div>
           ))
         )}
       </div>
 
       {!collapsed && (
         <div className="sidebar-footer">
-          <small>Gemini Clone • Dark theme</small>
+          <small>Minimal Gemini • Dark</small>
         </div>
       )}
     </aside>

@@ -2,9 +2,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
 :root {
+  --bg-900: #0b0b0d;
+  --bg-800: #131314;
+  --bg-700: #1e1e20;
+  --accent-1: #8b6dff;
+  --accent-2: #5ac7ff;
+  --accent-3: #ff6fdd;
+  --muted: rgba(255,255,255,0.54);
   color-scheme: dark;
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #0a0a0d;
+  background: var(--bg-900);
   color: #f4f4f8;
 }
 
@@ -18,8 +25,7 @@ body,
   min-height: 100%;
   margin: 0;
   padding: 0;
-  background: radial-gradient(circle at top, rgba(117, 83, 255, 0.16), transparent 22%),
-    linear-gradient(180deg, #131314 0%, #09090e 100%);
+  background: linear-gradient(180deg, var(--bg-800) 0%, var(--bg-900) 100%);
 }
 
 body {
@@ -46,4 +52,18 @@ img {
 .app-shell {
   display: flex;
   min-height: 100vh;
+  gap: 10px;
+  padding: 12px;
+}
+
+@keyframes subtleGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animated-gradient {
+  background: linear-gradient(90deg, rgba(139,109,255,0.06), rgba(90,199,255,0.06), rgba(255,111,221,0.04));
+  background-size: 300% 300%;
+  animation: subtleGradient 12s ease infinite;
 }

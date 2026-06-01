@@ -1,3 +1,5 @@
+// filepath: src/components/Main/Main.jsx
+// ...existing code...
 import React, { useContext, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -51,12 +53,25 @@ const Main = () => {
   } = useContext(Context);
 
   const textareaRef = useRef(null);
+  const messageListRef = useRef(null);
+  const bottomRef = useRef(null);
 
   useEffect(() => {
     if (!textareaRef.current) return;
     textareaRef.current.style.height = "auto";
     textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
   }, [input]);
+
+  // scroll to bottom when messages change or streaming result changes
+  useEffect(() => {
+    const el = messageListRef.current;
+    if (!el) return;
+    // small timeout to wait for rendered changes
+    const id = setTimeout(() => {
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    }, 80);
+    return () => clearTimeout(id);
+  }, [activeConversation?.messages?.length, resultData, loading]);
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
@@ -71,7 +86,7 @@ const Main = () => {
     }
   };
 
-  const promptTitle = activeConversation?.prompt || "How can I help you today?";
+  const chatHeaderTitle = activeConversation ? "Active conversation" : "How can I help you today?";
 
   return (
     <main className="main">
@@ -100,25 +115,19 @@ const Main = () => {
               </button>
               <button
                 className="suggestion-card"
-                onClick={() =>
-                  onSent("Explain the difference between React state and props.")
-                }
+                onClick={() => onSent("Explain the difference between React state and props.")}
               >
                 <p>Explain React</p>
               </button>
               <button
                 className="suggestion-card"
-                onClick={() =>
-                  onSent("Generate a JavaScript function to validate email addresses.")
-                }
+                onClick={() => onSent("Generate a JavaScript function to validate email addresses.")}
               >
                 <p>Validate email</p>
               </button>
               <button
                 className="suggestion-card"
-                onClick={() =>
-                  onSent("Show example Python code for reading a CSV file and printing rows.")
-                }
+                onClick={() => onSent("Show example Python code for reading a CSV file and printing rows.")}
               >
                 <p>Python example</p>
               </button>
@@ -129,7 +138,7 @@ const Main = () => {
             <div className="chat-header">
               <div className="chat-title">
                 <p>Latest request</p>
-                <h2>{promptTitle}</h2>
+                <h2>{chatHeaderTitle}</h2>
               </div>
               <button
                 className={`listen-pill ${listening ? "active" : ""}`}
@@ -140,48 +149,90 @@ const Main = () => {
               </button>
             </div>
 
-            <div className="message-list">
-              <div className="message message-user">
-                <div className="message-bubble user-bubble">{promptTitle}</div>
-              </div>
+            <div className="message-list" ref={messageListRef}>
+              {/* Render entire conversation */}
+              {(activeConversation?.messages || []).map((m, idx) => {
+                const key = `${m.role}-${idx}-${m.createdAt || idx}`;
+                if (m.role === "user") {
+                  return (
+                    <div className="message message-user" key={key}>
+                      <div className="message-bubble user-bubble">{m.content}</div>
+                    </div>
+                  );
+                }
+                return (
+                  <div className="message message-assistant" key={key}>
+                    <div className="assistant-top">
+                      <div className="assistant-avatar">
+                        <img src={assets.gemini_icon} alt="Gemini" />
+                        <div className="assistant-meta">
+                          <strong>Gemini</strong>
+                          <small>AI assistant</small>
+                        </div>
+                      </div>
+                      <div className="assistant-actions">
+                        <button
+                          className={`listen-chip ${listening ? "active" : ""}`}
+                          onClick={onListen}
+                          type="button"
+                        >
+                          <img src={assets.mic_icon} alt="Listen" />
+                        </button>
+                      </div>
+                    </div>
 
-              <div className="message message-assistant">
-                <div className="assistant-top">
-                  <div className="assistant-avatar">
-                    <img src={assets.gemini_icon} alt="Gemini" />
-                    <div>
-                      <span>Gemini</span>
-                      <p>AI assistant</p>
+                    <div className="assistant-bubble">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeHighlight]}
+                        components={{ code: CodeBlock }}
+                      >
+                        {m.content}
+                      </ReactMarkdown>
                     </div>
                   </div>
-                  <button
-                    className={`listen-chip ${listening ? "active" : ""}`}
-                    onClick={onListen}
-                    type="button"
-                  >
-                    <img src={assets.mic_icon} alt="Listen" />
-                    <span>{listening ? "Listening" : "Listen"}</span>
-                  </button>
-                </div>
+                );
+              })}
 
-                <div className="assistant-bubble">
-                  {loading ? (
-                    <div className="typing-indicator">
-                      <span />
-                      <span />
-                      <span />
+              {/* While loading, show streaming assistant bubble as last item */}
+              {loading && (
+                <div className="message message-assistant">
+                  <div className="assistant-top">
+                    <div className="assistant-avatar">
+                      <img src={assets.gemini_icon} alt="Gemini" />
+                      <div className="assistant-meta">
+                        <strong>Gemini</strong>
+                        <small>AI assistant</small>
+                      </div>
                     </div>
-                  ) : (
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      rehypePlugins={[rehypeHighlight]}
-                      components={{ code: CodeBlock }}
-                    >
-                      {resultData || "Gemini is ready to answer your next question."}
-                    </ReactMarkdown>
-                  )}
+                    <div className="assistant-actions">
+                      <button className={`listen-chip`} onClick={onListen} type="button">
+                        <img src={assets.mic_icon} alt="Listen" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="assistant-bubble">
+                    {resultData ? (
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeHighlight]}
+                        components={{ code: CodeBlock }}
+                      >
+                        {resultData}
+                      </ReactMarkdown>
+                    ) : (
+                      <div className="typing-indicator">
+                        <span />
+                        <span />
+                        <span />
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              <div ref={bottomRef} />
             </div>
           </section>
         )}
@@ -189,14 +240,6 @@ const Main = () => {
 
       <div className="main-bottom">
         <div className="input-pill">
-          <button
-            className={`mic-action ${recording ? "active" : ""}`}
-            onClick={toggleRecording}
-            type="button"
-          >
-            <img src={assets.mic_icon} alt="Mic" />
-          </button>
-
           <textarea
             ref={textareaRef}
             value={input}
@@ -210,7 +253,12 @@ const Main = () => {
             <button type="button" className="icon-button" title="Upload image">
               <img src={assets.gallery_icon} alt="Upload" />
             </button>
-            <button type="button" className="icon-button" title="Voice input">
+            <button
+              type="button"
+              className={`icon-button mic-action ${recording ? "active" : ""}`}
+              title="Voice input"
+              onClick={toggleRecording}
+            >
               <img src={assets.mic_icon} alt="Voice" />
             </button>
             <button
@@ -233,3 +281,4 @@ const Main = () => {
 };
 
 export default Main;
+// ...existing code...

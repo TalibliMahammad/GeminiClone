@@ -1,3 +1,4 @@
+// ...existing code...
 import { createContext, useEffect, useState } from "react";
 import runChat from "../config/gemini";
 
@@ -20,11 +21,19 @@ const ContextProvider = (props) => {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        setConversations(parsed);
-        if (parsed.length > 0) {
-          setActiveConversation(parsed[0]);
+        const normalized = parsed.map((c) => {
+          if (Array.isArray(c.messages)) return c;
+          const msgs = [];
+          if (c.prompt) msgs.push({ role: "user", content: c.prompt });
+          if (c.response) msgs.push({ role: "assistant", content: c.response });
+          return { ...c, messages: msgs };
+        });
+        setConversations(normalized);
+        if (normalized.length > 0) {
+          setActiveConversation(normalized[0]);
           setShowResult(true);
-          setResultData(parsed[0].response || "");
+          const last = normalized[0].messages?.slice(-1)[0];
+          setResultData((last && last.role === "assistant") ? last.content || "" : "");
         }
       }
     } catch (error) {
@@ -44,8 +53,13 @@ const ContextProvider = (props) => {
   const loadConversation = (id) => {
     const conversation = conversations.find((item) => item.id === id);
     if (!conversation) return;
+
     setActiveConversation(conversation);
-    setResultData(conversation.response || "");
+    setResultData(
+      conversation.messages?.slice(-1)[0]?.role === "assistant"
+        ? conversation.messages.slice(-1)[0].content || ""
+        : ""
+    );
     setShowResult(true);
     setLoading(false);
   };
@@ -56,6 +70,22 @@ const ContextProvider = (props) => {
     setResultData("");
     setInput("");
     setLoading(false);
+  };
+
+  const deleteConversation = (id) => {
+    setConversations((prev) => {
+      const next = prev.filter((c) => c.id !== id);
+      if (activeConversation?.id === id) {
+        if (next.length > 0) {
+          setActiveConversation(next[0]);
+          setResultData(next[0].response || "");
+          setShowResult(true);
+        } else {
+          newChat();
+        }
+      }
+      return next;
+    });
   };
 
   const toggleRecording = () => {
@@ -76,46 +106,87 @@ const ContextProvider = (props) => {
     window.speechSynthesis.speak(utterance);
   };
 
-  const typeMarkdown = async (text) => {
+  const typeMarkdown = async (text, onChunk) => {
+    // stream-like word-by-word builder, call onChunk for UI updates
     const tokens = text.split(" ");
     let built = "";
     for (let i = 0; i < tokens.length; i++) {
       built += tokens[i] + (i < tokens.length - 1 ? " " : "");
-      setResultData(built);
+      if (onChunk) onChunk(built);
       await new Promise((resolve) => setTimeout(resolve, 28));
     }
+    return built;
+  };
+
+  const appendMessageToConversation = (conversationId, message) => {
+    setConversations((prev) =>
+      prev.map((c) => (c.id === conversationId ? { ...c, messages: [...(c.messages || []), message], updatedAt: new Date().toISOString() } : c))
+    );
+    setActiveConversation((prev) => (prev && prev.id === conversationId ? { ...prev, messages: [...(prev.messages || []), message], updatedAt: new Date().toISOString() } : prev));
   };
 
   const onSent = async (prompt) => {
     const promptText = prompt !== undefined ? prompt : input;
     if (!promptText.trim()) return;
 
-    const newConversation = {
-      id: Date.now().toString(),
-      title: getConversationTitle(promptText),
-      prompt: promptText,
-      response: "",
-      createdAt: new Date().toISOString(),
-    };
+    setInput("");
 
-    setConversations((prev) => [newConversation, ...prev]);
-    setActiveConversation(newConversation);
+    let conversationId = activeConversation?.id;
+    if (!conversationId) {
+      conversationId = Date.now().toString();
+      const newConversation = {
+        id: conversationId,
+        title: getConversationTitle(promptText),
+        messages: [],
+        response: "",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      setConversations((prev) => [newConversation, ...prev]);
+      setActiveConversation(newConversation);
+    }
+
+    const userMsg = { role: "user", content: promptText, createdAt: new Date().toISOString() };
+    appendMessageToConversation(conversationId, userMsg);
     setShowResult(true);
     setLoading(true);
     setResultData("");
-    setInput("");
 
     const response = await runChat(promptText);
 
-    await typeMarkdown(response);
+    await typeMarkdown(response, (chunk) => {
+      setResultData(chunk);
+    });
+
+    const assistantMsg = { role: "assistant", content: response, createdAt: new Date().toISOString() };
+    appendMessageToConversation(conversationId, assistantMsg);
+
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === conversationId
+          ? {
+              ...c,
+              response,
+              title: c.title || getConversationTitle(promptText),
+              updatedAt: new Date().toISOString(),
+            }
+          : c
+      )
+    );
+
+    setActiveConversation((prev) =>
+      prev && prev.id === conversationId
+        ? {
+            ...prev,
+            response,
+            title: prev.title || getConversationTitle(promptText),
+            updatedAt: new Date().toISOString(),
+          }
+        : prev
+    );
 
     setLoading(false);
-    setConversations((prev) =>
-      prev.map((item) => (item.id === newConversation.id ? { ...item, response } : item))
-    );
-    setActiveConversation((prev) =>
-      prev && prev.id === newConversation.id ? { ...prev, response } : prev
-    );
+    setResultData(response);
   };
 
   const value = {
@@ -132,6 +203,7 @@ const ContextProvider = (props) => {
     onListen,
     loadConversation,
     newChat,
+    deleteConversation,
     toggleRecording,
   };
 
@@ -139,3 +211,4 @@ const ContextProvider = (props) => {
 };
 
 export default ContextProvider;
+// ...existing code...
