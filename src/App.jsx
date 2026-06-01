@@ -1,14 +1,19 @@
-import React from 'react'
-import Sidebar from './components/Sidebar.jsx/Sidebar'
-import Main from './components/Main/Main'
+// filepath: src/App.jsx
+import React from "react";
+import ContextProvider from "./context/context";
+import Sidebar from "./components/Sidebar.jsx/Sidebar";
+import Main from "./components/Main/Main";
+import "./index.css";
 
-const App = () => {
+function App() {
   return (
-    <>
-    <Sidebar />
-    <Main />
-    </>
-  )
+    <ContextProvider>
+      <div className="app-shell">
+        <Sidebar />
+        <Main />
+      </div>
+    </ContextProvider>
+  );
 }
 
-export default App
+export default App;

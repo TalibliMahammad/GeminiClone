@@ -1,94 +1,235 @@
-import React, { useContext } from 'react'
-import './Main.css'
-import { assets } from '../../assets/assets'
-import { Context } from '../../context/context';
+import React, { useContext, useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.css";
+import { Context } from "../../context/context";
+import { assets } from "../../assets/assets";
+import "./Main.css";
 
+const CodeBlock = ({ inline, className, children }) => {
+  const language = /language-(\w+)/.exec(className || "")?.[1] || "code";
 
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(children.toString());
+    } catch {
+      // ignore
+    }
+  };
+
+  if (inline) {
+    return <code className="inline-code">{children}</code>;
+  }
+
+  return (
+    <div className="code-block">
+      <div className="code-toolbar">
+        <span>{language}</span>
+        <button onClick={handleCopy}>Copy</button>
+      </div>
+      <pre className={className}>
+        <code>{children}</code>
+      </pre>
+    </div>
+  );
+};
 
 const Main = () => {
-    const { onSent, recentPrompt, showResult, loading, resultData, setInput, input } = useContext(Context);
+  const {
+    onSent,
+    activeConversation,
+    showResult,
+    loading,
+    resultData,
+    setInput,
+    input,
+    toggleRecording,
+    recording,
+    listening,
+    onListen,
+  } = useContext(Context);
 
-    return (
-        <div className='main'>
-            <div className="nav">
-                <p>Gemini</p>
-                <img src={assets.user_icon} alt="" />
+  const textareaRef = useRef(null);
+
+  useEffect(() => {
+    if (!textareaRef.current) return;
+    textareaRef.current.style.height = "auto";
+    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+  }, [input]);
+
+  const handleInputChange = (e) => {
+    setInput(e.target.value);
+    e.target.style.height = "auto";
+    e.target.style.height = `${e.target.scrollHeight}px`;
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      onSent(input);
+    }
+  };
+
+  const promptTitle = activeConversation?.prompt || "How can I help you today?";
+
+  return (
+    <main className="main">
+      <div className="main-content">
+        {!showResult ? (
+          <section className="welcome-panel">
+            <div className="welcome-copy">
+              <p className="welcome-label">
+                Hello, I’m <span>Gemini</span>
+              </p>
+              <h1>How can I help you today?</h1>
+              <p>
+                Ask about code, design, summaries, ideas, or get instant
+                smart suggestions with clean Markdown and code rendering.
+              </p>
             </div>
 
-
-            <div className="main-container">
-                {!showResult ? (
-                    <>
-                        <div className="greet">
-                            <p><span>Hello, Dev</span></p>
-                            <p>How can I help you</p>
-                        </div>
-
-                        <div className="cards">
-                            <div className="card">
-                                <p>
-                                    Navigate with Compass
-                                </p>
-                                <img src={assets.compass_icon} alt="" />
-                            </div>
-                            <div className="card">
-                                <p>Write down your ideas</p>
-                                <img src={assets.bulb_icon} alt="" />
-                            </div>
-                            <div className="card">
-                                <p>Send a message</p>
-                                <img src={assets.message_icon} alt="" />
-                            </div>
-                            <div className="card">
-                                <p>Code examples</p>
-                                <img src={assets.code_icon} alt="" />
-                            </div>
-                        </div>
-
-                    </>
-
-                ) : (
-                    <div className="result">
-                        <div className="result-title">
-                            <img src={assets.user_icon} alt="" />
-                            <p>{recentPrompt}</p>
-                        </div>
-                        <div className="result-data">
-                            <img src={assets.gemini_icon} alt="" />
-
-                            {loading
-                                ? <div className="loader">
-                                    <hr />
-                                    <hr />
-                                    <hr />
-                                </div>
-                                : <p dangerouslySetInnerHTML={{ __html: resultData }}></p>
-                            }
-
-                        </div>
-                    </div>
-                )
-
+            <div className="suggestion-grid">
+              <button
+                className="suggestion-card"
+                onClick={() =>
+                  onSent("Write a responsive landing page using React and Tailwind CSS.")
                 }
-
-                <div className="main-bottom">
-
-                    <div className="search-box">
-                        <input onChange={(e) => setInput(e.target.value)} value={input} placeholder='Enter a Promt Here' type="text" />
-                        <div>
-                            <img src={assets.gallery_icon} alt="" />
-                            <img src={assets.mic_icon} alt="" />
-                            {input.trim() ? <img onClick={() => onSent(input)} value={input} src={assets.send_icon} alt="" /> : null}                        </div>
-                    </div>
-
-                    <p className='bottom-info'>
-                        Gemini clone app. Made with by Dev Mahammad Talibli
-                    </p>
-
-                </div>
+              >
+                <p>Build a landing page</p>
+              </button>
+              <button
+                className="suggestion-card"
+                onClick={() =>
+                  onSent("Explain the difference between React state and props.")
+                }
+              >
+                <p>Explain React</p>
+              </button>
+              <button
+                className="suggestion-card"
+                onClick={() =>
+                  onSent("Generate a JavaScript function to validate email addresses.")
+                }
+              >
+                <p>Validate email</p>
+              </button>
+              <button
+                className="suggestion-card"
+                onClick={() =>
+                  onSent("Show example Python code for reading a CSV file and printing rows.")
+                }
+              >
+                <p>Python example</p>
+              </button>
             </div>
-        </div>
-    )
-}
+          </section>
+        ) : (
+          <section className="chat-panel">
+            <div className="chat-header">
+              <div className="chat-title">
+                <p>Latest request</p>
+                <h2>{promptTitle}</h2>
+              </div>
+              <button
+                className={`listen-pill ${listening ? "active" : ""}`}
+                onClick={onListen}
+                type="button"
+              >
+                {listening ? "Listening" : "Listen"}
+              </button>
+            </div>
 
-export default Main
+            <div className="message-list">
+              <div className="message message-user">
+                <div className="message-bubble user-bubble">{promptTitle}</div>
+              </div>
+
+              <div className="message message-assistant">
+                <div className="assistant-top">
+                  <div className="assistant-avatar">
+                    <img src={assets.gemini_icon} alt="Gemini" />
+                    <div>
+                      <span>Gemini</span>
+                      <p>AI assistant</p>
+                    </div>
+                  </div>
+                  <button
+                    className={`listen-chip ${listening ? "active" : ""}`}
+                    onClick={onListen}
+                    type="button"
+                  >
+                    <img src={assets.mic_icon} alt="Listen" />
+                    <span>{listening ? "Listening" : "Listen"}</span>
+                  </button>
+                </div>
+
+                <div className="assistant-bubble">
+                  {loading ? (
+                    <div className="typing-indicator">
+                      <span />
+                      <span />
+                      <span />
+                    </div>
+                  ) : (
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeHighlight]}
+                      components={{ code: CodeBlock }}
+                    >
+                      {resultData || "Gemini is ready to answer your next question."}
+                    </ReactMarkdown>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+      </div>
+
+      <div className="main-bottom">
+        <div className="input-pill">
+          <button
+            className={`mic-action ${recording ? "active" : ""}`}
+            onClick={toggleRecording}
+            type="button"
+          >
+            <img src={assets.mic_icon} alt="Mic" />
+          </button>
+
+          <textarea
+            ref={textareaRef}
+            value={input}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Send a prompt to Gemini..."
+            rows="1"
+          />
+
+          <div className="input-icons">
+            <button type="button" className="icon-button" title="Upload image">
+              <img src={assets.gallery_icon} alt="Upload" />
+            </button>
+            <button type="button" className="icon-button" title="Voice input">
+              <img src={assets.mic_icon} alt="Voice" />
+            </button>
+            <button
+              type="button"
+              className="send-button"
+              onClick={() => onSent(input)}
+              disabled={!input.trim()}
+            >
+              <img src={assets.send_icon} alt="Send" />
+            </button>
+          </div>
+        </div>
+
+        <p className="bottom-caption">
+          Gemini clone app. Made with ❤️ by Dev Mahammad Talibli.
+        </p>
+      </div>
+    </main>
+  );
+};
+
+export default Main;

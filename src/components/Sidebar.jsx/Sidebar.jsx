@@ -1,63 +1,59 @@
-import React, { useContext, useState } from 'react'
-import './Sidebar.css'
-import { assets } from '../../assets/assets'
-import { Context } from '../../context/context'
+// filepath: src/components/Sidebar.jsx/Sidebar.jsx
+import React, { useContext, useState } from "react";
+import "./Sidebar.css";
+import { Context } from "../../context/context";
+import { assets } from "../../assets/assets";
 
 const Sidebar = () => {
+  const { conversations, activeConversation, loadConversation, newChat } = useContext(Context);
+  const [collapsed, setCollapsed] = useState(false);
 
-
-    const [extented, setExtended] = useState(false)
-    const { onSent, prevPrompts, setRecentPrompt, newChat } = useContext(Context);
-
-    const loadPrompt = async (prompt) => {
-        setRecentPrompt(prompt)
-        await onSent(prompt, true)
-    }
-
-
-    return (
-        <div className='sidebar'>
-            <div className="top">
-                <img onClick={() => setExtended(!extented)} src={assets.menu_icon} alt="" />
-
-                <div onClick={newChat} className="new-chat">
-                    <img src={assets.plus_icon} alt="" />
-                    {extented ? <p>New Chat</p> : null}
-                </div>
-                {extented ?
-                    <div className="recent">
-                        <p className="recent-title">Recent</p>
-
-                        {prevPrompts.map((item, index) => {
-                            return(
-                            <div onClick={() => loadPrompt(item)} className="recent-entry" key={index}>
-                                <img src={assets.message_icon} alt="" />
-                                <p>{item.slice(0, 10)} ...</p>
-                            </div>
-                            )
-                        })}
-
-
-                    </div>
-                    : null
-                }
+  return (
+    <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
+      <div className="sidebar-top">
+        <div className="sidebar-brand">
+          <img src={assets.gemini_icon} alt="Gemini" />
+          {!collapsed && (
+            <div className="brand-text">
+              <p>Gemini</p>
+              <span>Conversation history</span>
             </div>
-            <div className="bottom">
-                <div className="bottom-item recent-entry">
-                    <img src={assets.question_icon} alt="" />
-                    {extented ? <p>Help</p> : null}
-                </div>
-                <div className="bottom-item recent-entry">
-                    <img src={assets.history_icon} alt="" />
-                    {extented ? <p>History</p> : null}
-                </div>
-                <div className="bottom-item recent-entry">
-                    <img src={assets.setting_icon} alt="" />
-                    {extented ? <p>Settings</p> : null}
-                </div>
-            </div>
-
+          )}
         </div>
-    )
-}
-export default Sidebar
+        <button className="sidebar-collapse" onClick={() => setCollapsed((prev) => !prev)}>
+          {collapsed ? "›" : "‹"}
+        </button>
+      </div>
+
+      <button className="btn-new-chat" onClick={newChat}>
+        <span>+</span>
+        {!collapsed && "New Chat"}
+      </button>
+
+      <div className="sidebar-history">
+        {conversations.length === 0 ? (
+          <div className="history-empty">No chats yet. Start a new conversation.</div>
+        ) : (
+          conversations.map((item) => (
+            <button
+              key={item.id}
+              className={`history-item ${activeConversation?.id === item.id ? "active" : ""}`}
+              onClick={() => loadConversation(item.id)}
+            >
+              <div className="history-title">{item.title}</div>
+              {!collapsed && <small>{new Date(item.createdAt).toLocaleDateString()}</small>}
+            </button>
+          ))
+        )}
+      </div>
+
+      {!collapsed && (
+        <div className="sidebar-footer">
+          <small>Gemini Clone • Dark theme</small>
+        </div>
+      )}
+    </aside>
+  );
+};
+
+export default Sidebar;
