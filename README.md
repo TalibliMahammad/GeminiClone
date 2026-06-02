@@ -10,7 +10,6 @@ Here is a quick breakdown of what was used and why:
 
 *   **Vite & React** – Chosen for fast scaffolding, hot module replacement, and efficient UI rendering.
 *   **Context API & `useState`** – Utilized for centralized global state management. It preserves the complete conversation history (`messages` array), allowing users to continue threads seamlessly without losing prior context.
-*   **Tailwind CSS** – Used to build a 100% responsive, dark-mode optimized layout that adapts flawlessly from desktop monitors to mobile screens.
 *   **Groq API (`llama-3.3-70b-versatile`)** – Integrated as the main AI engine to handle complex text generation with sub-second latency.
 *   **Environment Variables (`.env`)** – Implemented to securely isolate sensitive API keys away from the client-side codebase.
 *   **Vercel** – Used for continuous deployment, managing production-ready environment configurations smoothly.
