@@ -37,7 +37,7 @@ const CodeBlock = ({ inline, className, children }) => {
   );
 };
 
-const Main = () => {
+const Main = ({ onOpenSidebar }) => {
   const {
     onSent,
     activeConversation,
@@ -48,8 +48,6 @@ const Main = () => {
     input,
     toggleRecording,
     recording,
-    listening,
-    onListen,
   } = useContext(Context);
 
   const textareaRef = useRef(null);
@@ -93,8 +91,11 @@ const Main = () => {
       <div className="main-content">
         {!showResult ? (
           <section className="welcome-panel">
-            <div className="welcome-copy">
-              <p className="welcome-label">
+          <button className="mobile-menu-button" onClick={onOpenSidebar} type="button" aria-label="Open sidebar menu">
+            ☰
+          </button>
+          <div className="welcome-copy">
+            <p className="welcome-label">
                 Hello, I’m <span>Gemini</span>
               </p>
               <h1>How can I help you today?</h1>
@@ -136,18 +137,14 @@ const Main = () => {
         ) : (
           <section className="chat-panel">
             <div className="chat-header">
-              <div className="chat-title">
-                <p>Latest request</p>
-                <h2>{chatHeaderTitle}</h2>
-              </div>
-              <button
-                className={`listen-pill ${listening ? "active" : ""}`}
-                onClick={onListen}
-                type="button"
-              >
-                {listening ? "Listening" : "Listen"}
-              </button>
+            <button className="mobile-menu-button" onClick={onOpenSidebar} type="button" aria-label="Open sidebar menu">
+              ☰
+            </button>
+            <div className="chat-title">
+              <p>Latest request</p>
+              <h2>{chatHeaderTitle}</h2>
             </div>
+          </div>
 
             <div className="message-list" ref={messageListRef}>
               {/* Render entire conversation */}
@@ -169,15 +166,6 @@ const Main = () => {
                           <strong>Gemini</strong>
                           <small>AI assistant</small>
                         </div>
-                      </div>
-                      <div className="assistant-actions">
-                        <button
-                          className={`listen-chip ${listening ? "active" : ""}`}
-                          onClick={onListen}
-                          type="button"
-                        >
-                          <img src={assets.mic_icon} alt="Listen" />
-                        </button>
                       </div>
                     </div>
 
@@ -204,11 +192,6 @@ const Main = () => {
                         <strong>Gemini</strong>
                         <small>AI assistant</small>
                       </div>
-                    </div>
-                    <div className="assistant-actions">
-                      <button className={`listen-chip`} onClick={onListen} type="button">
-                        <img src={assets.mic_icon} alt="Listen" />
-                      </button>
                     </div>
                   </div>
 

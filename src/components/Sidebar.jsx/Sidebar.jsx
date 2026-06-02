@@ -4,30 +4,42 @@ import "./Sidebar.css";
 import { Context } from "../../context/context";
 import { assets } from "../../assets/assets";
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const { conversations, activeConversation, loadConversation, newChat, deleteConversation } = useContext(Context);
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
-      <div className="sidebar-top">
-        <div className="sidebar-brand">
-          <img src={assets.gemini_icon} alt="Gemini" />
-          {!collapsed && (
-            <div className="brand-text">
-              <p>Mahammad Ai</p>
-              <span>Conversation history</span>
-            </div>
-          )}
+    <>
+      <aside className={`sidebar ${collapsed ? "collapsed" : ""} ${isOpen ? "open" : ""}`}>
+        <div className="sidebar-top">
+          <div className="sidebar-brand">
+            <img src={assets.gemini_icon} alt="Gemini" />
+            {!collapsed && (
+              <div className="brand-text">
+                <p>Mahammad Ai</p>
+                <span>Conversation history</span>
+              </div>
+            )}
+          </div>
+          <button
+            className="sidebar-collapse"
+            onClick={() => setCollapsed((prev) => !prev)}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? "›" : "‹"}
+          </button>
         </div>
-        <button
-          className="sidebar-collapse"
-          onClick={() => setCollapsed((prev) => !prev)}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {collapsed ? "›" : "‹"}
-        </button>
-      </div>
+
+        {isOpen && (
+          <button
+            className="sidebar-close-mobile"
+            onClick={onClose}
+            type="button"
+            aria-label="Close menu"
+          >
+            ×
+          </button>
+        )}
 
       <button className="btn-new-chat" onClick={newChat} aria-label="New chat">
         <span>+</span>
@@ -74,6 +86,8 @@ const Sidebar = () => {
         </div>
       )}
     </aside>
+      <div className={`sidebar-backdrop ${isOpen ? "visible" : ""}`} onClick={onClose} />
+    </>
   );
 };
 

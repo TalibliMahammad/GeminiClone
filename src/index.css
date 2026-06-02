@@ -25,6 +25,8 @@ body,
   min-height: 100%;
   margin: 0;
   padding: 0;
+  width: 100%;
+  overflow-x: hidden;
   background: linear-gradient(180deg, var(--bg-800) 0%, var(--bg-900) 100%);
 }
 
@@ -54,6 +56,15 @@ img {
   min-height: 100vh;
   gap: 10px;
   padding: 12px;
+  overflow-x: hidden;
+}
+
+@media (max-width: 1024px) {
+  .app-shell {
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+  }
 }
 
 @keyframes subtleGradient {
