@@ -1,31 +1,19 @@
-# Gemini Clone
+## About the Project
 
-**Gemini Clone** is a web application that replicates functionalities inspired by the Gemini platform. This project is developed for Front-end practice and demonstrates interactive UI, API integration, and responsive design.
+**Gemini Clone** is a high-performance web application that replicates the sleek, minimalist user interface of Google Gemini. While the front-end focuses on a pixel-perfect, interactive user experience, the core architecture is powered by the ultra-fast **Groq API**, delivering near-instant AI responses. 
 
-## Features
+The project demonstrates advanced state management, robust context continuity, and secure production deployment.
 
-- **New Page Creation**: Clicking the "New" button opens a new page dynamically.
-- **Gemini API Integration**: The project communicates with the Gemini API for fetching and sending data.
-- **Input Validation**: The send button only works if the input field is not empty.
-- **Recent Questions Tracking**: All written or provided questions are stored and displayed in the "Recent" section.
-- **Responsive Design**: Fully responsive layout for different screen sizes.
-- **Sidebar Toggle**: Sidebar can be opened and closed smoothly.
+## Tech Stack & Core Concepts
 
-## Technologies Used
+Here is a quick breakdown of what was used and why:
 
-- **HTML5 & CSS3** – for markup and styling.
-- **JavaScript (ES6+)** – for interactivity and API handling.
-- **Git & GitHub** – for version control.
-- **Responsive Design Principles** – ensures compatibility across devices.
+*   **Vite & React** – Chosen for fast scaffolding, hot module replacement, and efficient UI rendering.
+*   **Context API & `useState`** – Utilized for centralized global state management. It preserves the complete conversation history (`messages` array), allowing users to continue threads seamlessly without losing prior context.
+*   **Tailwind CSS** – Used to build a 100% responsive, dark-mode optimized layout that adapts flawlessly from desktop monitors to mobile screens.
+*   **Groq API (`llama-3.3-70b-versatile`)** – Integrated as the main AI engine to handle complex text generation with sub-second latency.
+*   **Environment Variables (`.env`)** – Implemented to securely isolate sensitive API keys away from the client-side codebase.
+*   **Vercel** – Used for continuous deployment, managing production-ready environment configurations smoothly.
 
-## Installation
-
-<img width="1893" height="898" alt="Ekran şəkli 2025-09-20 203659" src="https://github.com/user-attachments/assets/1ed12b28-0dff-4efa-b0df-5db60d8af830" />
-<img width="1902" height="905" alt="Ekran şəkli 2025-09-20 203729" src="https://github.com/user-attachments/assets/65d7e19f-2237-4a1a-af3e-2b336a8181d8" />
-1. Clone the repository:
-```bash
-git clone https://github.com/TalibliMahammad/gemini-clone.git
-
-# GeminiClone
-# GeminiClone
-# GeminiClone
+*   <img width="1889" height="871" alt="Ekran şəkli 2026-06-02 124916" src="https://github.com/user-attachments/assets/d90c1f3f-1f89-4f9d-a40f-db2ff9ef026e" />
+<img width="1897" height="871" alt="Ekran şəkli 2026-06-02 124856" src="https://github.com/user-attachments/assets/9c4bc66f-abfa-4ff8-b4cc-956ef1f472de" />
